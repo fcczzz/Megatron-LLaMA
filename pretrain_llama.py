@@ -1,5 +1,7 @@
 # Copyright (c) 2023, ALIBABA CORPORATION.  All rights reserved.
 
+import warnings
+warnings.filterwarnings("ignore")
 """Pretrain LLaMA"""
 import os
 
@@ -28,6 +30,8 @@ def model_provider(pre_process=True, post_process=True):
         pre_process=pre_process,
         post_process=post_process
     )
+    print(model)
+    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
     return model
 
 

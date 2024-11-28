@@ -24,7 +24,7 @@ import torch
 
 from transformers import LlamaConfig
 from transformers.modeling_utils import WEIGHTS_INDEX_NAME, WEIGHTS_NAME, shard_checkpoint
-
+from transformers import  AutoModelForCausalLM
 
 def add_checkpointing_args(parser):
     parser.add_argument("--megatron-path", type=str, default=None, help="Base directory of Megatron repository")
@@ -557,16 +557,19 @@ def convert_checkpoint_from_transformers_to_megatron(args):
     except ModuleNotFoundError:
         print("Unable to import Megatron, please specify the path to Megatron using --megatron-path. Exiting.")
         exit(1)
-
+    '''
     # load the transformers model state dict and config
-    sub_dirs = [x for x in os.listdir(args.load_path) if x.startswith("pytorch_model")]
+    sub_dirs = [x for x in os.listdir(args.load_path) if x.startswith("pytorch_model")] 
     if len(sub_dirs) == 1:
         checkpoint_name = "pytorch_model.bin"
         state_dict = torch.load(os.path.join(args.load_path, checkpoint_name), map_location="cpu")
     else:
         num_checkpoints = len(sub_dirs) - 1
         state_dict = merge_transformers_sharded_states(args.load_path, num_checkpoints)
+    '''
 
+    model_temp = AutoModelForCausalLM.from_pretrained(args.load_path)
+    state_dict = model_temp.state_dict()
     config = LlamaConfig.from_pretrained(args.load_path)
 
     # Saving the tracker file
@@ -645,7 +648,11 @@ def convert_checkpoint_from_transformers_to_megatron(args):
         output_state_dict.append({})
 
     # Embedding layer
-    print("converting embedding layer")
+    print("converting embedding layer!!!!!!!!!!!!!!!!!!!!!!!!!")
+    #打印整个state_dict
+    print("state_dict:",state_dict)
+    for(k,v) in state_dict.items():
+        print(k,v)
     # pos_embedding = state_dict["transformer.wpe.weight"].to(dtype)
     word_embedding = state_dict["model.embed_tokens.weight"].to(dtype)
     orig_vocab_size = config.vocab_size
@@ -672,7 +679,7 @@ def convert_checkpoint_from_transformers_to_megatron(args):
 
     # Transformer layers
     print("converting transformer layers")
-    if config.num_hidden_layers % args.target_tensor_model_parallel_size != 0:
+    if config.num_hidden_layers % args.target_pipeline_model_parallel_size != 0:
         raise ValueError(
             f"Number of layers ({config.num_hidden_layers}) must be divisible by number of tensor parallelism"
             f" ({args.target_tensor_model_parallel_size})"

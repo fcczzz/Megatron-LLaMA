@@ -13,12 +13,12 @@ GLOBAL_BATCH_SIZE=$((($WORLD_SIZE * $MICRO_BATCH_SIZE) / ($TP_SIZE * $PP_SIZE) *
 
 JOB_NAME="LLaMA_tp${TP_SIZE}_pp${PP_SIZE}_mbs${MICRO_BATCH_SIZE}_gpus${WORLD_SIZE}"
 
-LOAD_CHECKPOINT_PATH="/hy-tmp/models/self_llama/v1"
-SAVE_CHECKPOINT_PATH="/hy-tmp/models/self_llama/v2"
-TOKENIZER_PATH="/hy-tmp/models/llama"
+LOAD_CHECKPOINT_PATH="/hy-tmp/models/3B-Megatron/"
+SAVE_CHECKPOINT_PATH="/hy-tmp/models/self_llama/v2/"
+TOKENIZER_PATH="/hy-tmp/models/3B-Megatron/"
 TENSORBOARD_DIR="/hy-tmp/models/self_llama/runs"
 
-TRAIN_ITERS=1000
+TRAIN_ITERS=5
 EVAL_ITERS=10
 EVAL_INTERVAL=1000
 SAVE_INTERVAL=100
@@ -31,14 +31,14 @@ options=" \
         --tensor-model-parallel-size ${TP_SIZE} \
         --pipeline-model-parallel-size ${PP_SIZE} \
     --num-layers 28 \
-        --hidden-size 1024 \
-        --num-attention-heads 16 \
+        --hidden-size 3072 \
+        --num-attention-heads 24 \
         --seq-length 1024 \
         --max-position-embeddings 1024 \
         --no-position-embedding \
         --use-rotary-position-embeddings \
         --swiglu \
-        --ffn-hidden-size 11008\
+        --ffn-hidden-size 8192\
         --disable-bias-linear \
         --RMSNorm \
         --layernorm-epsilon 1e-6 \
@@ -70,8 +70,15 @@ options=" \
     --eval-interval ${EVAL_INTERVAL} \
         --eval-iters ${EVAL_ITERS} \
     --save-interval ${SAVE_INTERVAL} \
+            --save ${SAVE_CHECKPOINT_PATH} \
+    --load ${LOAD_CHECKPOINT_PATH} \
         --no-load-optim \
     --log-interval ${LOG_INTERVAL} \
+     --tensorboard-dir ${TENSORBOARD_DIR} \
+        --tensorboard-queue-size 1000 \
+        --log-timers-to-tensorboard \
+        --log-batch-size-to-tensorboard \
+        --log-validation-ppl-to-tensorboard \
     --job-name ${JOB_NAME} \
     --bf16 \
     --recompute-activations \

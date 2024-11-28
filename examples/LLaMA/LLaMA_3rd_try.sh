@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# llama 1B
 DATASET_1="/hy-tmp/dataset/code-search-net-python/data_in_megatron_form/code-search-net_text_document"
 DATASET="1 ${DATASET_1} "
 
@@ -13,12 +13,12 @@ GLOBAL_BATCH_SIZE=$((($WORLD_SIZE * $MICRO_BATCH_SIZE) / ($TP_SIZE * $PP_SIZE) *
 
 JOB_NAME="LLaMA_tp${TP_SIZE}_pp${PP_SIZE}_mbs${MICRO_BATCH_SIZE}_gpus${WORLD_SIZE}"
 
-LOAD_CHECKPOINT_PATH="/hy-tmp/models/self_llama/v1"
+LOAD_CHECKPOINT_PATH="/hy-tmp/models/1B-Megatron-pp2"
 SAVE_CHECKPOINT_PATH="/hy-tmp/models/self_llama/v2"
-TOKENIZER_PATH="/hy-tmp/models/llama"
+TOKENIZER_PATH="/hy-tmp/models/Llama-3.2-1B"
 TENSORBOARD_DIR="/hy-tmp/models/self_llama/runs"
 
-TRAIN_ITERS=1000
+TRAIN_ITERS=100
 EVAL_ITERS=10
 EVAL_INTERVAL=1000
 SAVE_INTERVAL=100
@@ -30,15 +30,15 @@ options=" \
     --sequence-parallel \
         --tensor-model-parallel-size ${TP_SIZE} \
         --pipeline-model-parallel-size ${PP_SIZE} \
-    --num-layers 28 \
-        --hidden-size 1024 \
-        --num-attention-heads 16 \
-        --seq-length 1024 \
-        --max-position-embeddings 1024 \
+    --num-layers 8 \
+        --hidden-size 2048 \
+        --num-attention-heads 32 \
+        --seq-length 32 \
+        --max-position-embeddings 32 \
         --no-position-embedding \
         --use-rotary-position-embeddings \
         --swiglu \
-        --ffn-hidden-size 11008\
+        --ffn-hidden-size 5632\
         --disable-bias-linear \
         --RMSNorm \
         --layernorm-epsilon 1e-6 \
