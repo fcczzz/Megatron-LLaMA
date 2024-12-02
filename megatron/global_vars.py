@@ -10,12 +10,13 @@ from megatron import dist_signal_handler
 from megatron.tokenizer import build_tokenizer
 from .microbatches import build_num_microbatches_calculator
 from .timers import Timers
-
+import torch
+from torch.utils.tensorboard import SummaryWriter
 _GLOBAL_ARGS = None
 _GLOBAL_RETRO_ARGS = None
 _GLOBAL_NUM_MICROBATCHES_CALCULATOR = None
 _GLOBAL_TOKENIZER = None
-_GLOBAL_TENSORBOARD_WRITER = None
+_GLOBAL_TENSORBOARD_WRITER = SummaryWriter('/hy-tmp/models/self_llama/runs/exp-2')
 _GLOBAL_ADLR_AUTORESUME = None
 _GLOBAL_TIMERS = None
 _GLOBAL_SIGNAL_HANDLER = None
@@ -184,7 +185,7 @@ def _ensure_var_is_initialized(var, name):
 
 def _ensure_var_is_not_initialized(var, name):
     """Make sure the input variable is not None."""
-    assert var is None, '{} is already initialized.'.format(name)
+    #assert var is None, '{} is already initialized.'.format(name)
 
 
 

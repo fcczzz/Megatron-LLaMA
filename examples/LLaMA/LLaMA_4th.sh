@@ -5,8 +5,8 @@ DATASET="1 ${DATASET_1} "
 
 TP_SIZE=$1
 PP_SIZE=$2
-WORLD_SIZE=$3
-echo "TP_SIZE: ${TP_SIZE}, PP_SIZE: ${PP_SIZE} WORLD_SIZE: ${WORLD_SIZE}"
+echo "TP_SIZE: ${TP_SIZE}, PP_SIZE: ${PP_SIZE}"
+WORLD_SIZE=8
 MICRO_BATCH_SIZE=1
 # The int is the number of micro steps of gradient accumulation
 GLOBAL_BATCH_SIZE=$((($WORLD_SIZE * $MICRO_BATCH_SIZE) / ($TP_SIZE * $PP_SIZE) * 8))
@@ -37,7 +37,7 @@ options_1b=" \
         --hidden-size 2048 \
         --num-attention-heads 32 \
         --seq-length 32 \
-        --max-position-embeddings 8192\
+        --max-position-embeddings 32 \
         --no-position-embedding \
         --use-rotary-position-embeddings \
         --swiglu \
@@ -207,7 +207,4 @@ options_backup=" \
     --use-flash-attn
     "
 
-torchrun \
-    --nnodes=1\
-    --nproc_per_node=$WORLD_SIZE\
-    --master_port=29500 pretrain_llama.py ${options_1b} 2>&1 | tee ${LOG_NAME}
+torchrun --nproc_per_node=8 --master_port=29500 pretrain_llama.py ${options_1b} 2>&1 | tee ${LOG_NAME}

@@ -124,3 +124,4 @@ if __name__ == "__main__":
              forward_step,
              args_defaults={'tokenizer_type': 'GPT2BPETokenizer'}
     )
+    print(f'Peak memory allocated: {torch.cuda.max_memory_allocated()/1024**3:.10f} GB')
